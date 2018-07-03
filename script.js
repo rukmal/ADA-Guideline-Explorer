@@ -23,12 +23,13 @@ const search = function () {
     var searchTerm = $('#search-input').val();
 
     // Get concatenated data with only search text
-    searchData = getSearchData(searchTerm, full_guidelines);
+    searchData = getSearchData(searchTerm);
 
     // Clear view, re-render with updated data
     $('#accordion').empty();
 
-    // populateGuidelineView(full_guidelines);
+    // Populating with search results
+    populateGuidelineView(searchData);
 }
 
 /**
@@ -78,8 +79,59 @@ const populateGuidelineView = function (guideline_data) {
 *** HELPER FUNCTIONS
 *********************/
 
-const getSearchData = function (searchTerm, full_guidelines) {
-    console.log(full_guidelines);
+test  = 2
+
+/**
+ * Function to return a spliced version of the full guidelines,
+ * looking through search terms.
+ * @param {string} searchTerm Term to be searched for
+ */
+const getSearchData = function (searchTerm) {
+    results = JSON.parse(JSON.stringify(full_guidelines));
+    unused = [];
+    for (c_idx in results) {
+        used = false;
+        chapter = results[c_idx];
+        if (!chapter.chapter_title.includes(searchTerm)) {
+            for (rg_idx in chapter.recommendation_groups) {
+                rec_group = chapter.recommendation_groups[rg_idx];
+                if (!rec_group.title.includes(searchTerm)) {
+                    not_found = [];
+                    for (r_idx in rec_group.recommendations) {
+                        recommendation = rec_group.recommendations[r_idx];
+                        if (!recommendation.content.includes(searchTerm)) {
+                            not_found.push(parseInt(r_idx));
+                        } else {
+                            used = true;
+                        }
+                    }
+                    // necessary so splicing can work correctly (sorting in descending)
+                    not_found.sort((a, b) => b - a);
+                    for (i in not_found) {
+                        idx = not_found[i];
+                        rec_group.recommendations.splice(idx, 1);
+                    }
+                } else {
+                    // group name contains search term, do not remove anything
+                    used = true;
+                }
+            }
+        } else {
+            // chapter contains search term, do not remove anything
+            used = true;
+        }
+        if (!used) {
+            unused.push(parseInt(c_idx));
+        }
+    }
+    // necessary so splicing can work correctly (sorting in descending)
+    unused.sort((a, b) => b - a);
+    for (i in unused) {
+        idx = unused[i];
+        results.splice(idx, 1);
+    }
+
+    return results;
 }
 
 /**
