@@ -72,6 +72,9 @@ def processChapter(chapter: Tag) -> dict:
     global current_chapter_title
     current_chapter_title = out['chapter_title']
 
+    # Adding full chapter URL to output
+    out['chapter_url'] = BASE_URL + chapter_path
+
     # Downloading chapter webpage
     chapter_raw = get(BASE_URL + chapter_path).text
     chapter_parsed = BeautifulSoup(chapter_raw, 'html.parser')
@@ -119,6 +122,9 @@ def extractRecommendations(recommendation_tag: Tag) -> dict:
     rec_block['title'] = getRecommendationTitle(recommendation_tag)
     
     rec_block['recommendations'] = list()
+
+    rec_block['discussion'] = current_chapter_title_tag.parent.text \
+        if current_chapter_title_tag is not None else ''
 
     if recommendation_tag.next_sibling is None:
         # Recommendation subcategories
@@ -367,6 +373,29 @@ def parseCitation(citation: Tag) -> str:
     """
 
     return citation.text
+
+def getDiscussion(title_tag: Tag) -> str:
+    """Function to locate and return discussion text for the current
+    recommendation block. Currently returns raw text of discussion.
+    
+    Arguments:
+        title_tag {Tag} -- Tag for the recommendation block title.
+    
+    Returns:
+        str -- Text of discussion for recommendation block.
+    """
+
+    discussion = ''
+
+    if title_tag is not None:
+        discussion_raw = title_tag.parent.text
+        # TODO: Process raw discussion text
+        discussion = discussion_raw
+    else:
+        # Full chapter recommendations
+        discussion = current_chapter.text
+    
+    return discussion
 
 if __name__ == "__main__":
     main()
