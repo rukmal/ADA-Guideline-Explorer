@@ -92,14 +92,14 @@ const getSearchData = function (searchTerm) {
     for (c_idx in results) {
         used = false;
         chapter = results[c_idx];
-        if (!chapter.chapter_title.includes(searchTerm)) {
+        if (!chapter.chapter_title.toLowerCase().includes(searchTerm)) {
             for (rg_idx in chapter.recommendation_groups) {
                 rec_group = chapter.recommendation_groups[rg_idx];
-                if (!rec_group.title.includes(searchTerm)) {
+                if (!rec_group.title.toLowerCase().includes(searchTerm)) {
                     not_found = [];
                     for (r_idx in rec_group.recommendations) {
                         recommendation = rec_group.recommendations[r_idx];
-                        if (!recommendation.content.includes(searchTerm)) {
+                        if (!recommendation.content.toLowerCase().includes(searchTerm)) {
                             not_found.push(parseInt(r_idx));
                         } else {
                             used = true;
@@ -231,11 +231,20 @@ const replaceSpecial = function (text) {
 *********************/
 
 
-// Get guidelines from server 
+// Get guidelines from server
 
 var full_guidelines = null; // for guidelines to be global variable
 
 guideline_get = $.get('ADA2018Guidelines.json', function (response) {
     full_guidelines = response
     populateGuidelineView(full_guidelines)
+});
+
+
+// Event handler for 'Enter' keypress in search box
+
+$("#search-input").keyup(function(event) {
+    if (event.keyCode === 13) {
+        search();
+    }
 });
