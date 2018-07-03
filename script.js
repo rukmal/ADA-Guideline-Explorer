@@ -244,7 +244,5 @@ guideline_get = $.get('ADA2018Guidelines.json', function (response) {
 // Event handler for 'Enter' keypress in search box
 
 $("#search-input").keyup(function(event) {
-    if (event.keyCode === 13) {
-        search();
-    }
+    search();
 });
