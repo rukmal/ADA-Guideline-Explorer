@@ -1,4 +1,8 @@
-// Application variables
+/*********************
+*** APPLICATION VARIABLES
+*********************/
+
+// Map to store recommendation-grade list color class mappings
 const grade_class_map = {
     'A': 'list-group-item-success',
     'B': 'list-group-item-info',
@@ -6,6 +10,14 @@ const grade_class_map = {
     'E': 'list-group-item-danger'
 };
 
+
+/*********************
+*** PAGE FUNCTIONS
+*********************/
+
+/**
+ * Function to trigger a search operation
+ */
 const search = function () {
     // Getting search term
     let searchTerm = $('#search-input').val();
@@ -18,6 +30,11 @@ const getSearchData = function () {
     // Return modified JSON, with only data that shows up in search terms
 }
 
+/**
+ * Function to render guideline data on the view
+ * 
+ * @param {JSON} guideline_data Guideline data to be rendered - follow format from ADAGuidelines2018.json script
+ */
 const populateGuidelineView = function (guideline_data) {
     output = ''
     for (chapter_idx in guideline_data) {
@@ -38,11 +55,25 @@ const populateGuidelineView = function (guideline_data) {
         // Close 'card' div
         output += '</div>';
     }
-    console.log(output);
+
     // Appending to view
     $('#accordion').append(output);
 }
 
+
+/*********************
+*** HELPER FUNCTIONS
+*********************/
+test = 2
+
+/**
+ * Function to build a 'card' header
+ * 
+ * @param {string} current_id Current ID to be used in the header css
+ * @param {int} chapter_number Number of the current chapter
+ * @param {string} chapter_name Name/Title of the current chapter
+ * @param {string} btn_type CSS string of the button type to be used
+ */
 const buildCardHeader = function (current_id, chapter_number, chapter_name, btn_type) {
     output = '';
 
@@ -54,14 +85,20 @@ const buildCardHeader = function (current_id, chapter_number, chapter_name, btn_
     // Adding button text
     output += replaceSpecial(chapter_number + '. ' + chapter_name);
     // Closing button tag
-    output += '</button>'
+    output += '</button>';
 
     // Close card header div
     output += '</div>';
 
-    return output
+    return output;
 }
 
+/**
+ * Function to build the body of a card
+ * 
+ * @param {string} current_id Current ID to be used in the body css
+ * @param {Array} recommendation_groups Array of recommendation groups
+ */
 const buildCardBody = function (current_id, recommendation_groups) {
     output = '';
 
@@ -89,7 +126,7 @@ const buildCardBody = function (current_id, recommendation_groups) {
         // close list tag
         output += '</ul>';
 
-        output += '<br>'
+        output += '<br>';
     }
 
     // Close card body div
@@ -100,13 +137,31 @@ const buildCardBody = function (current_id, recommendation_groups) {
 
     return output;
 }
+
+/**
+ * Function to construct an ID for CSS
+ * 
+ * @param {int} chapter_number Number of the chapter
+ * @param {string} chapter_name Name/title of the chapter
+ */
 const constructID = function (chapter_number, chapter_name) {
     return 'no' + chapter_number + 'title' + chapter_name.replace(/\s+/g, '');
 }
 
+/**
+ * Remove special characters from text
+ * 
+ * @param {string} text Text from which special characters will be removed
+ */
 const replaceSpecial = function (text) {
     return text.replace(/&/g, "&amp;").replace(/>/g, "&gt;").replace(/</g, "&lt;").replace(/"/g, "&quot;");
 }
+
+
+/*********************
+*** PAGE LOAD SCRIPT
+*********************/
+
 
 // Get guidelines from server 
 guideline_get = $.get('ADA2018Guidelines.json', function (response) {
