@@ -20,14 +20,27 @@ const grade_class_map = {
  */
 const search = function () {
     // Getting search term
-    let searchTerm = $('#search-input').val();
+    var searchTerm = $('#search-input').val();
 
     // Get concatenated data with only search text
-    searchData = getSearchData(searchTerm);
+    searchData = getSearchData(searchTerm, full_guidelines);
+
+    // Clear view, re-render with updated data
+    $('#accordion').empty();
+
+    // populateGuidelineView(full_guidelines);
 }
 
-const getSearchData = function () {
-    // Return modified JSON, with only data that shows up in search terms
+/**
+ * Function to clear a search, and re-render the guidelines
+ */
+const clearSearch = function () {
+    // Clear search bar
+    $('#search-input').val('');
+
+    // Clear view, re-render with only search text
+    $('#accordion').empty();
+    populateGuidelineView(full_guidelines);
 }
 
 /**
@@ -64,7 +77,10 @@ const populateGuidelineView = function (guideline_data) {
 /*********************
 *** HELPER FUNCTIONS
 *********************/
-test = 2
+
+const getSearchData = function (searchTerm, full_guidelines) {
+    console.log(full_guidelines);
+}
 
 /**
  * Function to build a 'card' header
@@ -164,7 +180,10 @@ const replaceSpecial = function (text) {
 
 
 // Get guidelines from server 
+
+var full_guidelines = null; // for guidelines to be global variable
+
 guideline_get = $.get('ADA2018Guidelines.json', function (response) {
-    const full_guidelines = response
+    full_guidelines = response
     populateGuidelineView(full_guidelines)
 });
