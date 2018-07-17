@@ -2,6 +2,7 @@ from bs4 import BeautifulSoup
 from bs4.element import Tag
 from json import dump
 from pprint import pprint
+import csv
 import re
 from requests import get
 import random
@@ -11,6 +12,7 @@ import random
 BASE_URL = 'http://care.diabetesjournals.org'
 TOC_PATH = '/content/41/Supplement_1'
 OUTPUT_FILE = 'ADA2018Guidelines.json'
+CITATION_FILE  = 'ADA2018CitationMap.csv'
 
 # Output variables
 parsed_guidelines = list()
@@ -20,6 +22,7 @@ current_chapter_title = ''
 current_chapter_title_tag = None
 current_chapter = None
 current_chapter_citations = None
+citation_map = dict()
 
 
 def main():
@@ -37,20 +40,26 @@ def main():
                     id='PositionStatements').next_sibling.children
     
     # Iterating through and processing chapters
-    count = 1
+    count = 0
     for chapter in chapters:
+        count += 1
         if count == 12:
             print('Skipping chapter 12 as it is not loading correctly.')
             continue
-        print(count)
         parsed_chapter = processChapter(chapter)
         global parsed_guidelines
         parsed_guidelines.append(parsed_chapter)
-        count += 1
     
     # Writing to JSON file
     with open(OUTPUT_FILE, 'w') as outfile:
         dump(parsed_guidelines, outfile, indent=2)
+
+    # Writing citation map
+    with open(CITATION_FILE, 'w') as csv_file:
+        writer = csv.writer(csv_file)
+        writer.writerow(['citation', 'count'])
+        for key, value in citation_map.items():
+            writer.writerow([key, value])
 
 
 def processChapter(chapter: Tag) -> dict:
@@ -342,8 +351,13 @@ def getCitations() -> list:
     except:
         citations_raw = current_chapter.find_all('a', class_='xref-bibr')
     for citation in citations_raw:
-        citations.append(
-            current_chapter_citations[re.sub('[^0-9]', '', citation.text)])
+        current_citation = \
+            current_chapter_citations[re.sub('[^0-9]', '', citation.text)]
+        try:
+            citation_map[current_citation] = citation_map[current_citation] + 1
+        except KeyError:
+            citation_map[current_citation] = 1
+        citations.append(current_citation)
     return citations
 
 
