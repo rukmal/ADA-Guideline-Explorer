@@ -37,10 +37,16 @@ def main():
                     id='PositionStatements').next_sibling.children
     
     # Iterating through and processing chapters
+    count = 1
     for chapter in chapters:
+        if count == 12:
+            print('Skipping chapter 12 as it is not loading correctly.')
+            continue
+        print(count)
         parsed_chapter = processChapter(chapter)
         global parsed_guidelines
         parsed_guidelines.append(parsed_chapter)
+        count += 1
     
     # Writing to JSON file
     with open(OUTPUT_FILE, 'w') as outfile:
